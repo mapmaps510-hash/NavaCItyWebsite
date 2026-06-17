@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nava City - GTA Roleplay Server</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #ffffff;
+      --primary-dark: #cccccc;
+      --accent: #999999;
+      --accent2: #666666;
+      --bg: #0a0a0a;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --text: #f0f0f0;
+      --text-muted: rgba(255,255,255,0.4);
+      --glow: 0 0 40px rgba(255,255,255,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── BG Video ── */
+    #bg-video {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      filter: brightness(0.7) saturate(1.1);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 1;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(10,10,15,0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--text);
+      transition: width 0.3s;
+      border-radius: 0;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0.4rem 1.2rem;
+      margin-bottom: 2rem;
+      animation: fadeInDown 0.8s ease;
+    }
+
+    .hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 0;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(3.5rem, 12vw, 7rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
+
+    .hero .subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      font-weight: 300;
+      color: var(--text-muted);
+      margin-top: 1rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      animation: fadeInUp 0.8s ease 0.4s both;
+    }
+
+    .hero .subtitle span {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .hero .tagline {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 0.5rem;
+      animation: fadeInUp 0.8s ease 0.5s both;
+    }
+
+    .hero-divider {
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--text), transparent);
+      margin: 2rem auto;
+      border-radius: 0;
+      animation: fadeInUp 0.8s ease 0.6s both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeInUp 0.8s ease 0.7s both;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.9rem 2.2rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      border-radius: 0;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: #0a0a0a;
+      box-shadow: var(--glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 60px rgba(255,255,255,0.15);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: var(--surface);
+      transform: translateY(-2px);
+    }
+
+    .btn .icon {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .btn-copy {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.9rem 1.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      border-radius: 0;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .btn-copy:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: var(--surface);
+      transform: translateY(-2px);
+    }
+
+
+
+    /* ── Scroll indicator ── */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      animation: fadeInUp 0.8s ease 1.2s both;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--text-muted), transparent);
+      animation: scrollPulse 2s ease infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ── Sections ── */
+    section {
+      position: relative;
+      z-index: 2;
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #fff, rgba(255,255,255,0.6));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    /* ── About ── */
+    #about {
+      padding-top: 3rem;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .about-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 1.5rem;
+      transition: all 0.4s ease;
+    }
+
+    .about-card:hover {
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(255,255,255,0.03);
+    }
+
+    .about-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .about-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ── Rules ── */
+    #rules {
+      padding-top: 3rem;
+    }
+
+    .rules-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0.75rem;
+      margin-top: 2.5rem;
+    }
+
+    .rule-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1rem 1.2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      transition: all 0.3s ease;
+    }
+
+    .rule-item:hover {
+      border-color: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .rule-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      min-width: 24px;
+      padding-top: 0.05rem;
+    }
+
+    .rule-item .text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .rule-item .text strong {
+      color: var(--text);
+    }
+
+    /* ── Staff ── */
+    #staff {
+      padding-top: 3rem;
+    }
+
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .staff-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      transition: all 0.4s ease;
+    }
+
+    .staff-card:hover {
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(255,255,255,0.03);
+    }
+
+    .staff-avatar {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+    }
+
+    .staff-card .name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .staff-card .role {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+      background: rgba(10,10,15,0.8);
+    }
+
+    footer p {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    footer .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    footer .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      transition: color 0.3s;
+    }
+
+    footer .footer-links a:hover {
+      color: var(--text);
+    }
+
+    /* ── Music Button ── */
+    .music-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 100;
+      width: 48px;
+      height: 48px;
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .music-toggle:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.08);
+      transform: scale(1.05);
+    }
+
+    .music-toggle.playing {
+      border-color: rgba(255,255,255,0.3);
+      box-shadow: 0 0 30px rgba(255,255,255,0.1);
+      animation: pulse-glow 2s ease infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 30px rgba(255,255,255,0.1); }
+      50% { box-shadow: 0 0 50px rgba(255,255,255,0.2); }
+    }
+
+    /* ── 3D Tilt ── */
+    .tilt-wrap {
+      perspective: 800px;
+    }
+
+    .tilt-inner {
+      transition: transform 0.2s ease;
+      transform-style: preserve-3d;
+    }
+
+    /* ── Scroll Progress ── */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #666, #fff);
+      z-index: 999;
+      width: 0%;
+      transition: width 0.1s ease;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      nav {
+        padding: 0.75rem 1.25rem;
+      }
+
+      .nav-links a { font-size: 0.7rem; }
+
+      .hero { padding: 5rem 1.25rem 3rem; }
+
+      section { padding: 3rem 1.25rem; }
+
+      .hero-actions { flex-direction: column; align-items: center; }
+
+      .staff-grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="scroll-progress"></div>
+
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="background.mp4" type="video/mp4" />
+  </video>
+
+  <div class="overlay"></div>
+
+  <!-- Nav -->
+  <nav>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#rules">Rules</a></li>
+      <li><a href="#staff">Staff</a></li>
+      <li><a href="https://discord.gg/QBaEhwKb77" target="_blank">Discord</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="tilt-wrap">
+      <div class="tilt-inner">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          Server GTA 2026
+        </div>
+
+        <h1>Nava City</h1>
+        <p class="subtitle">SA-MP <span>Roleplay</span></p>
+        <p class="tagline">Where every story begins</p>
+
+        <div class="hero-divider"></div>
+
+        <div class="hero-actions">
+          <a href="https://discord.gg/QBaEhwKb77" target="_blank" class="btn btn-primary">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M20.317 4.37a19.8 19.8 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.75 19.75 0 0 0 3.68 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.1 14.1 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+            Join Discord
+          </a>
+
+          <a href="https://sociabuzz.com/ellstore/tribe" target="_blank" class="btn-copy">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            <span>Donate</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="reveal">
+      <div class="section-label">Tentang Server</div>
+      <h2 class="section-title">Why Nava City?</h2>
+      <p class="section-desc">
+        Nava City adalah server GTA Roleplay terbaik dengan komunitas aktif, ekonomi realistis, dan pengalaman bermain yang immersive. Kami hadir untuk memberikan pengalaman roleplay terbaik buat lo semua.
+      </p>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-card reveal">
+        <h3>Deep Roleplay</h3>
+        <p>Pengalaman roleplay mendalam dengan skenario seru dan player yang aktif setiap hari.</p>
+      </div>
+      <div class="about-card reveal">
+        <h3>Realistic Economy</h3>
+        <p>Sistem ekonomi yang balance, dari kerja sampingan sampe bisnis besar.</p>
+      </div>
+      <div class="about-card reveal">
+        <h3>Custom Script</h3>
+        <p>Fitur-fitur custom eksklusif yang bikin gameplay makin seru dan unik.</p>
+      </div>
+      <div class="about-card reveal">
+        <h3>Active Admin</h3>
+        <p>Tim admin ramah yang siap bantu 24/7. Report cepet, masalah beres.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rules -->
+  <section id="rules">
+    <div class="reveal">
+      <div class="section-label">Server Rules</div>
+      <h2 class="section-title">Server Rules</h2>
+      <p class="section-desc">Aturan main yang wajib dipatuhi biar pengalaman roleplay tetap seru buat semua orang.</p>
+    </div>
+
+    <div class="rules-list">
+      <div class="rule-item reveal">
+        <span class="rule-num">01</span>
+        <div class="text"><strong>Respect Everyone</strong> — Hormatin sesama player. No toxic, no harassment.</div>
+      </div>
+      <div class="rule-item reveal">
+        <span class="rule-num">02</span>
+        <div class="text"><strong>Stay In Character</strong> — Selalu IC (In Character) saat di server. Jangan campur urusan real life.</div>
+      </div>
+      <div class="rule-item reveal">
+        <span class="rule-num">03</span>
+        <div class="text"><strong>No Cheating</strong> — Dilarang keras pake cheat, mod, atau exploit. Banned permanent.</div>
+      </div>
+      <div class="rule-item reveal">
+        <span class="rule-num">04</span>
+        <div class="text"><strong>No RDM / VDM</strong> — Random Deathmatch sama Vehicle Deathmatch dilarang. Harus ada reason RP.</div>
+      </div>
+      <div class="rule-item reveal">
+        <span class="rule-num">05</span>
+        <div class="text"><strong>Follow Admin Instructions</strong> — Admin selalu bener. Argumen bisa lewat ticket.</div>
+      </div>
+      <div class="rule-item reveal">
+        <span class="rule-num">06</span>
+        <div class="text"><strong>No Metagaming</strong> — Jangan pake informasi dari luar game buat keuntungan IC.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Staff -->
+  <section id="staff">
+    <div class="reveal">
+      <div class="section-label">Team</div>
+      <h2 class="section-title">Our Staff</h2>
+      <p class="section-desc">Tim keren yang ngejalanin server Nava City.</p>
+    </div>
+
+    <div class="staff-grid">
+      <div class="staff-card reveal">
+        <img class="staff-avatar" src="Luk.png" alt="Luk" />
+        <div class="name">Luk</div>
+        <div class="role">Owner</div>
+      </div>
+      <div class="staff-card reveal">
+        <img class="staff-avatar" src="Nano.png" alt="Nano" />
+        <div class="name">nano</div>
+        <div class="role">Co-Owner</div>
+      </div>
+      <div class="staff-card reveal">
+        <img class="staff-avatar" src="Kay.png" alt="Kay" />
+        <div class="name">Kay</div>
+        <div class="role">Head Admin</div>
+      </div>
+      <div class="staff-card reveal">
+        <img class="staff-avatar" src="Lora.png" alt="Lora" />
+        <div class="name">Lora</div>
+        <div class="role">Handle Girl</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="https://discord.gg/QBaEhwKb77" target="_blank">Discord</a>
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+    </div>
+    <p>&copy; 2026 Nava City. All rights reserved. Not affiliated with Rockstar Games.</p>
+  </footer>
+
+  <button class="music-toggle" id="music-btn" title="Sound">▶</button>
+
+  <script>
+    // ── Music ──
+    const video = document.getElementById('bg-video');
+    const btn = document.getElementById('music-btn');
+
+    // ── Scroll Reveal ──
+    const reveals = document.querySelectorAll('.reveal');
+
+    function revealOnScroll() {
+      const windowHeight = window.innerHeight;
+      reveals.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < windowHeight - 80) {
+          el.classList.add('visible');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+
+    // ── Scroll Progress ──
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      document.getElementById('scroll-progress').style.width = progress + '%';
+    });
+
+    // ── Typewriter ──
+    const tagline = document.querySelector('.tagline');
+    if (tagline) {
+      const text = tagline.textContent;
+      tagline.textContent = '';
+      let i = 0;
+      const type = setInterval(() => {
+        if (i < text.length) {
+          tagline.textContent += text.charAt(i);
+          i++;
+        } else {
+          clearInterval(type);
+        }
+      }, 60);
+    }
+
+    // ── Autoplay ──
+    video.play();
+
+    btn.addEventListener('click', () => {
+      video.muted = !video.muted;
+      btn.innerHTML = video.muted ? '▶' : '⏸';
+      btn.classList.toggle('playing', !video.muted);
+    });
+
+    // ── 3D Tilt Effect ──
+    const tiltInner = document.querySelector('.tilt-inner');
+    const tiltWrap = document.querySelector('.tilt-wrap');
+
+    if (tiltInner && tiltWrap) {
+      tiltWrap.addEventListener('mousemove', (e) => {
+        const rect = tiltWrap.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -6;
+        const rotateY = ((x - centerX) / centerX) * 6;
+        tiltInner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      });
+
+      tiltWrap.addEventListener('mouseleave', () => {
+        tiltInner.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      });
+    }
+  </script>
+</body>
+</html>
